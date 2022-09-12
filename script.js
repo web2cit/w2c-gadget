@@ -127,7 +127,7 @@ class Web2Cit {
           search.match(/^https?:\/\/.+/i) &&
           // to prevent an endless loop, continue using web2cit through citoid
           // if user explicitly asks to translate a web2cit url
-          !search.match(/^https?:\/\/127.0.0.1:3000\/.+/i)
+          !search.match(/^https?:\/\/web2cit.toolforge.org\/.+/i)
         ) {
           console.log('Web2Cit: Search will be resolved using Web2Cit + Citoid...')
           url = "https://web2cit.toolforge.org/translate";
@@ -166,7 +166,7 @@ class Web2Cit {
         credit.off("labelChange", onLabelChange);
         console.log('Web2Cit: Adding "Web2Cit" to credit label...');
         credit.setLabel($(
-          `<div>${credit.label} & <a href="https://web2cit.toolforge.org/${url}" target="_blank">Web2Cit</a></div>`
+          `<div>${credit.label} & <a href="https://web2cit.toolforge.org/${url}" target="_blank">Web2Cit (🖉)</a></div>`
         ));
       }
       if (web2cit) {
