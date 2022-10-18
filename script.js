@@ -5,6 +5,14 @@ class Web2Cit {
     this.unpatched = {};
     this.initialized = false;
     // this.mode = undefined;
+    this.server = "https://web2cit.toolforge.org/";
+    if (window.web2citServer) {
+      try {
+        this.server = new URL(window.web2citServer).href;
+      } catch {
+        console.log("Ignoring invalid web2citServer setting");
+      }
+    }
   }
 
   get disabled() {
@@ -93,6 +101,7 @@ class Web2Cit {
     // console.log("Web2Cit: Patching ajax...")
     const ajax = $.ajax;
     this.unpatched.ajax = ajax;
+    const server = this.server;
     $.ajax = function(url, options) {
       // If url is an object, simulate pre-1.5 signature
       if ( typeof url === "object" ) {
@@ -127,10 +136,12 @@ class Web2Cit {
           search.match(/^https?:\/\/.+/i) &&
           // to prevent an endless loop, continue using web2cit through citoid
           // if user explicitly asks to translate a web2cit url
-          !search.match(/^https?:\/\/web2cit.toolforge.org\/.+/i)
+          !search.match(
+            new RegExp(`^https?://${server.replace(/^https?:\/\//i, "")}.+`, "i")
+          )
         ) {
           console.log('Web2Cit: Search will be resolved using Web2Cit + Citoid...')
-          url = "https://web2cit.toolforge.org/translate";
+          url = server + "translate";
           options.data = {
             "citoid": "true",
             "format": "mediawiki",
@@ -147,6 +158,7 @@ class Web2Cit {
     // console.log("Web2Cit: Patching CitoidInspector's \"buildTemplateResults\"...");
     const buildTemplateResults = ve.ui.CitoidInspector.prototype.buildTemplateResults;
     this.unpatched.buildTemplateResults = buildTemplateResults
+    const server = this.server;
     ve.ui.CitoidInspector.prototype.buildTemplateResults = function( searchResults ) {
       let url;
       let web2cit = false;
@@ -166,7 +178,7 @@ class Web2Cit {
         credit.off("labelChange", onLabelChange);
         console.log('Web2Cit: Adding "Web2Cit" to credit label...');
         credit.setLabel($(
-          `<div>${credit.label} & <a href="https://web2cit.toolforge.org/${url}" target="_blank">Web2Cit (🖉)</a></div>`
+          `<div>${credit.label} & <a href="${server}${url}" target="_blank">Web2Cit (🖉)</a></div>`
         ));
       }
       if (web2cit) {
